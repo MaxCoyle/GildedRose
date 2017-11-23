@@ -3,17 +3,21 @@ using System.Collections.Generic;
 
 namespace gilded_rose
 {
+    public static class QualityManager
+    {
+        private const int MinimumQuality = 0;
+        private const int MaximumQuality = 50;
+
+        public static void Validate(Item item)
+        {
+            item.Quality = Math.Min(MaximumQuality, item.Quality);
+            item.Quality = Math.Max(MinimumQuality, item.Quality);
+        }
+    }
+
     public abstract class ItemStrategy
     {
         public abstract void Update(Item item);
-
-        public void ValidateQuality(Item item)
-        {
-            // Item is never more than 50
-            item.Quality = Math.Min(50, item.Quality);
-            // Item is never less than 0
-            item.Quality = Math.Max(0, item.Quality);
-        }
     }
 
     public class DefaultItemStrategy : ItemStrategy
@@ -26,7 +30,7 @@ namespace gilded_rose
 
             item.Quality -= increment;
             
-            ValidateQuality(item);
+            QualityManager.Validate(item);
         }
     }
 
@@ -37,7 +41,7 @@ namespace gilded_rose
             item.Quality++;
             item.SellIn--;
 
-            ValidateQuality(item);
+            QualityManager.Validate(item);
         }
     }
 
@@ -64,7 +68,7 @@ namespace gilded_rose
                 item.Quality++;
             }
 
-            ValidateQuality(item);
+            QualityManager.Validate(item);
         }
     }
 
@@ -82,7 +86,7 @@ namespace gilded_rose
             item.Quality-=2;
             item.SellIn--;
 
-            ValidateQuality(item);
+            QualityManager.Validate(item);
         }
     }
 

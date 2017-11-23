@@ -3,12 +3,17 @@ using System.Collections.Generic;
 
 namespace gilded_rose
 {
-    public static class QualityManager
+    public interface IQualityManager
+    {
+        void Validate(Item item);
+    }
+
+    public class StandardQualityManager : IQualityManager
     {
         private const int MinimumQuality = 0;
         private const int MaximumQuality = 50;
 
-        public static void Validate(Item item)
+        public void Validate(Item item)
         {
             item.Quality = Math.Min(MaximumQuality, item.Quality);
             item.Quality = Math.Max(MinimumQuality, item.Quality);
@@ -17,12 +22,12 @@ namespace gilded_rose
 
     public abstract class ItemStrategy
     {
-        public abstract void Update(Item item);
+        public abstract void Update(Item item, IQualityManager qualityManager);
     }
 
     public class DefaultItemStrategy : ItemStrategy
     {
-        public override void Update(Item item)
+        public override void Update(Item item, IQualityManager qualityManager)
         {
             item.SellIn--;
 
@@ -30,24 +35,24 @@ namespace gilded_rose
 
             item.Quality -= increment;
             
-            QualityManager.Validate(item);
+            qualityManager.Validate(item);
         }
     }
 
     public class EnhancingItemStrategy : ItemStrategy
     {
-        public override void Update(Item item)
+        public override void Update(Item item, IQualityManager qualityManager)
         {
             item.Quality++;
             item.SellIn--;
 
-            QualityManager.Validate(item);
+            qualityManager.Validate(item);
         }
     }
 
     public class BackStageItemStrategy : ItemStrategy
     {
-        public override void Update(Item item)
+        public override void Update(Item item, IQualityManager qualityManager)
         {
             item.SellIn--;
 
@@ -68,25 +73,25 @@ namespace gilded_rose
                 item.Quality++;
             }
 
-            QualityManager.Validate(item);
+            qualityManager.Validate(item);
         }
     }
 
     public class SulfurusItemStrategy : ItemStrategy
     {
-        public override void Update(Item item)
+        public override void Update(Item item, IQualityManager qualityManager)
         {
         }
     }
 
     public class ConjuredItemStrategy : ItemStrategy
     {
-        public override void Update(Item item)
+        public override void Update(Item item, IQualityManager qualityManager)
         {
             item.Quality-=2;
             item.SellIn--;
 
-            QualityManager.Validate(item);
+            qualityManager.Validate(item);
         }
     }
 
@@ -121,7 +126,7 @@ namespace gilded_rose
                 matchingItemStrategy = ItemStrategies["Default Item"];
             }
 
-            matchingItemStrategy.Update(item);
+            matchingItemStrategy.Update(item, new StandardQualityManager());
         }
     }
 }
